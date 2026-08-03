@@ -1,0 +1,12 @@
+{
+  "name": "github-flow",
+  "description": "Distribution source for the github-flow plugin, which automates worktree creation, commits, pushes, and pull request creation following GitHub Flow",
+  "owner": { "name": "mostlyfine" },
+  "plugins": [
+    {
+      "name": "github-flow",
+      "source": "./",
+      "description": "GitHub Flowに従いworktree作成・コミット・プッシュ・プルリクエスト作成を行うスキルを提供する"
+    }
+  ]
+}

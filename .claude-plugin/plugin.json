@@ -1,0 +1,8 @@
+{
+  "name": "github-flow",
+  "description": "GitHub Flowに従いworktree作成・コミット・プッシュ・プルリクエスト作成を行うスキルを提供する",
+  "version": "0.1.0",
+  "author": {
+    "name": "mostlyfine"
+  }
+}
