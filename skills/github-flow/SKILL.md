@@ -12,7 +12,7 @@ description: |
   CI/テスト失敗の調査、ブランチ削除のみ（新しい変更を保存しない操作）
 allowed-tools: >-
   AskUserQuestion, Read, Write,
-  Bash(git branch:*), Bash(git status:*), Bash(git rev-parse:*), Bash(git check-ignore:*),
+  Bash(git branch:*), Bash(git status:*), Bash(git fetch:*), Bash(git rev-parse:*), Bash(git check-ignore:*),
   Bash(git worktree:*), Bash(git diff:*), Bash(git add:*), Bash(git rm:*), Bash(git apply --cached:*),
   Bash(git commit:*), Bash(git stash:*), Bash(git pull:*), Bash(git push:*), Bash(gh pr create:*),
   Bash(cat:*), Bash(ls:*), Bash(echo:*)
@@ -35,6 +35,7 @@ flowchart LR
 ```
 
 各ステップの詳細は下記のリファレンスを必要に応じて読み込む。
+**main / master 上で直接作業・コミットしない。作業は必ず worktree 内で行う。**
 
 ## リファレンス
 
@@ -48,32 +49,19 @@ flowchart LR
 
 ## Step 1: worktree 準備
 
-作業を開始する前にリポジトリ直下の `.worktrees/` にworktreeを作成して、作業はworktree内で行う。
+作業を開始する前に main ブランチを最新化してから worktree を作成して移動する。
 
 ```bash
-git branch --show-current
-git status --short
-git rev-parse --git-dir --git-common-dir   # 2行の出力が異なれば worktree 内
+git pull --ff-only origin main        # main をチェックアウト中の場合
+git fetch origin main:main            # それ以外のブランチ上にいる場合
 ```
 
-現在の状態に応じて分岐する:
+fast-forward できない場合は作業を止めてユーザーに相談する。
+using-git-worktrees skill があれば利用する。worktree は最新の main から作成する。
 
-| 状態 | 対応 |
-|------|------|
-| 既に worktree 内、または feature ブランチ上 | そのまま Step 2 へ（二重に worktree 化しない） |
-| main/master 上・クリーン | worktree を作成して移動 |
-| main/master 上・変更あり | stash で変更を worktree に移送 |
-
-**main / master 上で直接作業・コミットしない。作業は必ず `.worktrees/<branch-dir>` 内で行う。**
-
-```bash
-git check-ignore -q .worktrees || echo '.worktrees/' >> "$(git rev-parse --git-common-dir)/info/exclude"
-git worktree add .worktrees/<branch-dir> -b feature/my-feature   # <branch-dir> は / を - に置換
-cd .worktrees/<branch-dir>
-```
-
-ブランチ命名規則は `references/branching-strategies.md`、変更の移送手順とエラー対処は
-`references/worktree-workflow.md` を参照。**以降の Step 2〜6 はすべて worktree 内で実行する。**
+ブランチ命名規則は `references/branching-strategies.md`
+変更の移送手順とエラー対処は`references/worktree-workflow.md` を参照。
+**以降の Step 2〜6 はすべて worktree 内で実行する。**
 
 ## Step 2: コミット範囲の決定
 
